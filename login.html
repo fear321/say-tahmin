@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+    <script src="firebase-config.js"></script> <!-- firebase-config.js dosyasını dahil et -->
+    <script src="app.js"></script> <!-- app.js dosyasını dahil et -->
+    <title>Firebase Giriş ve Kayıt</title>
+    <style>
+        /* Genel stil */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f4f7fc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: #fff;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .social-login {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-login button {
+            background-color: #4285F4;
+            font-size: 16px;
+        }
+
+        .social-login button:hover {
+            background-color: #357ae8;
+        }
+
+        .toggle-link {
+            text-align: center;
+            display: block;
+            margin-top: 15px;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .toggle-link a {
+            text-decoration: none;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .toggle-link a:hover {
+            text-decoration: underline;
+        }
+
+        .form-container {
+            transition: transform 0.4s ease-in-out;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .remember-me input {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Giriş Formu -->
+        <div id="loginForm" class="form-container">
+            <h2>Giriş Yap</h2>
+            <input type="email" id="loginEmail" placeholder="E-posta" required>
+            <input type="password" id="loginPassword" placeholder="Şifre" required>
+            <div class="remember-me">
+                <input type="checkbox" id="rememberMe"> <label for="rememberMe">Beni Hatırla</label>
+            </div>
+            <button id="loginButton">Giriş Yap</button>
+            <div class="social-login">
+                <button id="googleLoginButton">Google ile Kaydol</button>
+            </div>
+            <p class="toggle-link">Hesabınız yok mu? <a href="#" id="toggleRegisterFormLink">Kayıt Ol</a></p>
+        </div>
+
+        <!-- Kayıt Formu -->
+        <div id="registerForm" class="form-container hidden">
+            <h2>Kayıt Ol</h2>
+            <input type="email" id="registerEmail" placeholder="E-posta" required>
+            <input type="password" id="registerPassword" placeholder="Şifre" required>
+            <input type="text" id="registerUsername" placeholder="Kullanıcı Adı" required>
+            <button id="registerButton">Kayıt Ol</button>
+            <p class="toggle-link">Zaten hesabınız var mı? <a href="#" id="toggleLoginFormLink">Giriş Yap</a></p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+        // Firebase yapılandırma bilgileri
+        const firebaseConfig = {
+            apiKey: "AIzaSyBRTgfhrA3mXOkmqSumBRvG5b4FqMHYm4M",
+            authDomain: "sayitahmin-f0cdd.firebaseapp.com",
+            projectId: "sayitahmin-f0cdd",
+            storageBucket: "sayitahmin-f0cdd.firebasestorage.app",
+            messagingSenderId: "354016505388",
+            appId: "1:354016505388:web:853bb0402d813d2153eb89",
+            measurementId: "G-1NQC3YJ0EL",
+            databaseURL: "https://sayitahmin-f0cdd-default-rtdb.firebaseio.com/"
+        };
+
+        // Firebase'i başlatma
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth();
+        const database = getDatabase();
+
+        // Kullanıcı verisini Firebase veritabanına kaydetme
+        function saveUserData(userId, userData) {
+            const userRef = ref(database, 'users/' + userId);
+            set(userRef, userData);
+        }
+
+        // Kayıt işlemi
+        function registerUser() {
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const username = document.getElementById('registerUsername').value;
+
+            createUserWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    const userId = user.uid;  // Firebase User ID'si
+
+                    // Kullanıcı verisini Firebase veritabanına kaydetme
+                    const userData = {
+                        username: username, 
+                        email: email,
+                        balance: 5.00 // Başlangıç bakiyesi
+                    };
+                    saveUserData(userId, userData);
+
+                    alert('Kayıt başarılı!');
+                    toggleRegisterForm();
+                })
+                .catch((error) => {
+                    alert('Kayıt hatası: ' + error.message);
+                });
+        }
+
+        // Giriş işlemi
+        function loginUser() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    alert('Giriş başarılı!');
+                    // Ana sayfaya yönlendirme
+                    window.location.href = "index.html";  // Ana sayfa URL'sini buraya girin
+                })
+                .catch((error) => {
+                    alert('Giriş hatası: ' + error.message);
+                });
+        }
+
+        // Google ile giriş işlemi
+        function googleLogin() {
+            const provider = new GoogleAuthProvider();
+            signInWithPopup(auth, provider)
+                .then((result) => {
+                    const user = result.user;
+                    alert('Google ile giriş başarılı: ' + user.displayName);
+                    window.location.href = "index.html";  // Google ile kaydolduktan sonra ana sayfaya yönlendirme
+                })
+                .catch((error) => {
+                    alert('Google ile giriş hatası: ' + error.message);
+                });
+        }
+
+        // Giriş Formu geçişi
+        function toggleLoginForm() {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            loginForm.classList.remove('hidden');
+            registerForm.classList.add('hidden');
+        }
+
+        // Kayıt Formu geçişi
+        function toggleRegisterForm() {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            loginForm.classList.add('hidden');
+            registerForm.classList.remove('hidden');
+        }
+
+        // Event listener'lar
+        document.getElementById('registerButton').addEventListener('click', registerUser);
+        document.getElementById('loginButton').addEventListener('click', loginUser);
+        document.getElementById('googleLoginButton').addEventListener('click', googleLogin);
+        document.getElementById('toggleRegisterFormLink').addEventListener('click', toggleRegisterForm);
+        document.getElementById('toggleLoginFormLink').addEventListener('click', toggleLoginForm);
+    </script>
+
+</body>
+</html>
