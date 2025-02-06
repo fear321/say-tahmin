@@ -1,0 +1,184 @@
+/* Genel sayfa stili */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    min-height: 100vh;
+}
+
+/* Hoş geldiniz mesajı ve kullanıcı ID'si için stil */
+#welcomeMessage {
+    font-size: 24px;
+    margin: 50px 0px 0px 20px;
+    text-align: left;
+    width: 50%;
+}
+
+/* Kullanıcı ID ve bakiye için ortak stil */
+#userId, #balance {
+    font-size: 12px;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    padding-left: 20px;
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Kullanıcı ID ve bakiye aynı satıra yerleştiriliyor */
+#userId {
+    display: inline-block;
+    position: relative;
+    width: 50%; /* Kullanıcı ID'sinin genişliği */
+}
+
+#balance {
+    display: inline-block;
+    width: 30%; /* Bakiyenin genişliği */
+    text-align: right;
+    position: absolute;
+    right: 20px;
+    top: 50px;
+}
+
+/* Kutu içindeki metnin stilini düzenleyelim */
+.balance-container span {
+    font-size: 20px;
+    font-weight: bold;
+    color: #008CBA;
+}
+
+/* Diğer öğeler */
+#diceContainer {
+    display: flex;
+    gap: 20px;
+    margin-top: 200px;
+    margin-bottom: 50px;
+}
+
+.odometer {
+    font-size: 40px;
+    text-align: center;
+    width: 80px;
+    height: 50px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: scale(1);
+}
+
+/* Butonlar */
+button {
+    background-color: rgb(100, 0, 0);
+    padding: 5px 5px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 18px;
+    margin-top: 20px;
+}
+
+button:hover {
+    background-color: rgb(108, 28, 28);
+}
+
+#logoutButton{
+    position: fixed;
+    left: 20px;
+    bottom: 5%;
+    font-size: 15px;
+    background-color: rgb(100, 0, 0);
+}
+
+/* Popup stilini ekleyelim */
+#addBalancePopup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-content {
+    background-color: rgb(241, 241, 241);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 100%;
+}
+
+/* Kopyalama butonu */
+#copyUserId {
+    cursor: pointer;
+    background:none;
+}
+
+/* Bakiye ekleme butonu */
+#addBalanceButton {
+    cursor: pointer;
+    font-size: 13px;
+    
+}
+
+/* Bakiye popup içeriği */
+.popup-content p {
+    font-size: 16px;
+    color: #333;
+}
+
+.popup-content button {
+    margin-top: 20px;
+    font-size: 16px;
+}
+
+/* Başlık ve metin stili */
+#userId, #balance, #welcomeMessage {
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+    color: #333;
+}
+
+.rollButton {
+    background-color: rgb(100, 0, 0);
+}
+
+#copyUserIdForIBAN {
+    cursor: pointer;
+    background:none;
+}
+
+/* Yanıp sönme animasyonu - sadece bir kez çalışacak */
+@keyframes pulse {
+    0% {
+      border-color: red;
+    }
+    50% {
+      border-color: transparent;
+    }
+    100% {
+      border-color: red;
+    }
+}
+
+/* Border renk değiştirme animasyonu */
+.dice {
+    transition: border 0.5s ease; /* Border'ın renk değişimi animasyonu */
+}
+
+header{
+    width: 100%;
+}

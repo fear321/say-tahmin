@@ -5,37 +5,56 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="firebase-config.js"></script>
   <script src="app.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.8/odometer.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.8/themes/odometer-theme-default.min.css">
   <title>Index Sayfası</title>
 </head>
 <body>
-  <h1 id="welcomeMessage" style="display:none;">Hoş Geldiniz, <span id="userEmail"></span>!</h1>
-  <p id="message" style="display:none;">Bu sayfayı yalnızca giriş yaptıktan sonra görüntüleyebilirsiniz.</p>
-  
-  <!-- Kullanıcı ID'si gösterme alanı -->
-  <p id="userId" style="display:none;">Kullanıcı ID'niz: <span id="userIDValue"></span></p>
-  
-  <!-- Kullanıcı bakiyesi gösterme alanı -->
-  <p id="balance" style="display:none;">Bakiyeniz: <span id="userBalance"></span> TL</p>
 
-  <!-- Zarlar -->
-  <div id="diceContainer" style="display: flex; justify-content: center; gap: 10px;">
-    <div id="dice1" style="width: 50px; height: 50px; background-color: lightgray; text-align: center; font-size: 24px; display: flex; justify-content: center; align-items: center;">1</div>
-    <div id="dice2" style="width: 50px; height: 50px; background-color: lightgray; text-align: center; font-size: 24px; display: flex; justify-content: center; align-items: center;">1</div>
-    <div id="dice3" style="width: 50px; height: 50px; background-color: lightgray; text-align: center; font-size: 24px; display: flex; justify-content: center; align-items: center;">1</div>
+  <!-- Header Bölümü -->
+  <header>
+    <h1 id="welcomeMessage" style="display:none;">Hoş Geldiniz, <span id="userEmail"></span>!</h1>
+    <p id="userId" style="display:none;">Kullanıcı ID'niz: <span id="userIDValue"></span> 
+      <button id="copyUserId" style="cursor: pointer;"><i class="fa-solid fa-copy" style="color: #000000;"></i></button>
+    </p>
+    <p id="balance" style="display:none;">Bakiyeniz: <span id="userBalance"></span> TL 
+      <button id="addBalanceButton"><i class="fa-solid fa-turkish-lira-sign"></i> Ekle</button>
+    </p>
+    <p id="message" style="display:none;">Bu sayfayı yalnızca giriş yaptıktan sonra görüntüleyebilirsiniz.</p>
+  </header>
+
+  <!-- Dice Container Bölümü -->
+  <section id="diceContainer" style="display: flex; justify-content: center; gap: 10px;">
+    <div id="dice1" class="odometer">1</div>
+    <div id="dice2" class="odometer">1</div>
+    <div id="dice3" class="odometer">1</div>
+  </section>
+
+  <!-- Footer Bölümü -->
+  <footer>
+    <button id="rollButton" style="display:none;">Çevir 1TL</button>
+    <button id="logoutButton" style="display:none;">Çıkış Yap <i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+  </footer>
+
+  <!-- Bakiye Ekle Popup -->
+  <div id="addBalancePopup" style="display: none;">
+    <div class="popup-content">
+      <p>Para gönderim için kullanıcı ID’nizi açıklama olarak ekleyin:</p>
+      <p><strong>IBAN: TR12345678901234567890123456</strong></p>
+      <p><strong>Kullanıcı ID'niz: <span id="userIDForIBAN"></span> 
+        <button id="copyUserIdForIBAN" style="cursor: pointer;"><i class="fa-solid fa-copy" style="color: #000000;"></i></button></strong></p>
+      <button id="closePopup">Kapat</button>
+    </div>
   </div>
 
-  <!-- Çevir Butonu -->
-  <button id="rollButton" style="display:none;">Çevir</button>
-
-  <!-- Çıkış Yap Butonu -->
-  <button id="logoutButton" style="display:none;">Çıkış Yap</button>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
     import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-    // Firebase yapılandırma bilgileri
     const firebaseConfig = {
       apiKey: "AIzaSyBRTgfhrA3mXOkmqSumBRvG5b4FqMHYm4M",
       authDomain: "sayitahmin-f0cdd.firebaseapp.com",
@@ -47,15 +66,13 @@
       databaseURL: "https://sayitahmin-f0cdd-default-rtdb.firebaseio.com/"
     };
 
-    // Firebase'i başlatma
     const app = initializeApp(firebaseConfig);
     const auth = getAuth();
     const database = getDatabase();
 
-    // Kullanıcı oturum durumu kontrolü
     onAuthStateChanged(auth, (user) => {
       if (!user) {
-        window.location.href = "login.html"; // Giriş yapılmamışsa login.html sayfasına yönlendir
+        window.location.href = "login.html";
       } else {
         document.getElementById('welcomeMessage').style.display = 'block';
         document.getElementById('message').style.display = 'none';
@@ -69,7 +86,12 @@
         document.getElementById('userId').style.display = 'block';
         document.getElementById('userIDValue').innerText = userId;
 
-        // Realtime Database'den kullanıcının bakiyesini çekme
+        // Copy User ID
+        document.getElementById('copyUserId').addEventListener('click', () => {
+          const userIDValue = document.getElementById('userIDValue');
+          navigator.clipboard.writeText(userIDValue.innerText);
+        });
+
         const userRef = ref(database, 'users/' + userId);
         get(userRef).then((snapshot) => {
           if (snapshot.exists()) {
@@ -78,70 +100,94 @@
             document.getElementById('userBalance').innerText = userData.balance;
           }
         });
+
+        document.getElementById('userIDForIBAN').innerText = userId;
+        
+        // Copy User ID for IBAN
+        document.getElementById('copyUserIdForIBAN').addEventListener('click', () => {
+          const userIDForIBAN = document.getElementById('userIDForIBAN');
+          navigator.clipboard.writeText(userIDForIBAN.innerText);
+        });
       }
     });
 
-    // Zar atma fonksiyonu
     function rollDice() {
-      const dice1 = Math.floor(Math.random() * 6) + 1;
-      const dice2 = Math.floor(Math.random() * 6) + 1;
-      const dice3 = Math.floor(Math.random() * 6) + 1;
+  const dice1 = Math.floor(Math.random() * 6) + 1;
+  const dice2 = Math.floor(Math.random() * 6) + 1;
+  const dice3 = Math.floor(Math.random() * 6) + 1;
 
-      document.getElementById('dice1').innerText = dice1;
+  setTimeout(() => {
+    document.getElementById('dice1').innerText = dice1;
+    setTimeout(() => {
       document.getElementById('dice2').innerText = dice2;
-      document.getElementById('dice3').innerText = dice3;
+      setTimeout(() => {
+        document.getElementById('dice3').innerText = dice3;
+        setTimeout(() => {
+          // Dice kutularının border'ını kırmızıya döndürme
+          const diceElements = [document.getElementById('dice1'), document.getElementById('dice2'), document.getElementById('dice3')];
 
-      // Üç zarın birleşiminden tek bir sayı oluşturulması
+          diceElements.forEach(dice => {
+            dice.style.border = '1px solid red';  // Border'ı kırmızı yap
+          });
+
+          // 2 saniye sonra eski haline dönsün
+          setTimeout(() => {
+            diceElements.forEach(dice => {
+              dice.style.border = '';  // Border'ı eski haline döndür
+            });
+          }, 500); // 500ms sonra eski hale dön
+          
+          // Bakiye bildirimi 2 saniye sonra
+          setTimeout(() => {
+            updateBalance(dice1, dice2, dice3);  // Bakiyeyi güncelle
+          }, 1000); // 2 saniye bekle
+        }, 2000); // 1700ms animasyon süresi
+      }, 1000); // 1000ms arasında animasyon
+    }, 1000); // 1000ms arasında animasyon
+  }, 500); // 500ms arasında animasyon
+}
+
+
+    function updateBalance(dice1, dice2, dice3) {
       const combinedValue = dice1 * 100 + dice2 * 10 + dice3;
 
-      // Ödül hesaplama fonksiyonu
       function getReward(combinedValue) {
         if (combinedValue < 333) {
-          return 0; // 0 TL: 1 - 332
+          return 0;
         } else if (combinedValue >= 333 && combinedValue < 444) {
-          return 1; // 1 TL: 333 - 443
+          return 1;
         } else if (combinedValue >= 444 && combinedValue < 555) {
-          return 1.25; // 1.25 TL: 444 - 554
+          return 1.25;
         } else if (combinedValue >= 555 && combinedValue <= 666) {
-          return 2; // 2 TL: 555 - 666
+          return 2;
         }
-        return 0; // Default 0 TL
+        return 0;
       }
 
-      // Kullanıcının bakiyesini güncelleme ve 1 TL kaybetme işlemi
       const userId = auth.currentUser.uid;
       const userRef = ref(database, 'users/' + userId);
       get(userRef).then((snapshot) => {
         if (snapshot.exists()) {
           let balance = snapshot.val().balance;
 
-          // 1 TL düşme işlemi
           if (balance >= 1) {
-            balance -= 1; // Kullanıcıdan 1 TL kesiliyor
+            balance -= 1;
           } else {
             alert("Yeterli bakiyeniz yok!");
-            return; // Eğer yeterli bakiye yoksa işlem durduruluyor
+            return;
           }
 
-          // Ödül hesaplama
           let reward = getReward(combinedValue);
-
-          // Kazanç ekleniyor
           balance += reward;
 
-          // Veritabanını güncelleme
           update(userRef, { balance: balance });
 
-          // Yeni bakiyeyi ekranda gösterme
           document.getElementById('userBalance').innerText = balance;
-
-          // Kazanç mesajı
           alert(`Kazandığınız ödül: ${reward} TL! Bakiyeniz: ${balance} TL`);
         }
       });
     }
 
-    // Çıkış yapma işlemi
     document.getElementById('logoutButton').addEventListener('click', () => {
       signOut(auth).then(() => {
         window.location.href = "login.html";
@@ -150,8 +196,45 @@
       });
     });
 
-    // Çevir butonuna tıklama işlemi
     document.getElementById('rollButton').addEventListener('click', rollDice);
+
+    document.getElementById('addBalanceButton').addEventListener('click', () => {
+      document.getElementById('addBalancePopup').style.display = 'block';
+    });
+
+    document.getElementById('closePopup').addEventListener('click', () => {
+      document.getElementById('addBalancePopup').style.display = 'none';
+    });
   </script>
+
+  <!-- Popup CSS -->
+  <style>
+    #addBalancePopup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .popup-content {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    #copyUserId, #copyUserIdForIBAN {
+      cursor: pointer;
+    }
+
+    #addBalanceButton {
+      cursor: pointer;
+    }
+  </style>
 </body>
 </html>
