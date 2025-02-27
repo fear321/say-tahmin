@@ -10,6 +10,238 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.8/odometer.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.8/themes/odometer-theme-default.min.css">
   <title>Index Sayfası</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+      color: #ffffff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    header {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    #diceContainer {
+      background: rgba(0, 0, 0, 0.2);
+      padding: 30px;
+      border-radius: 15px;
+      margin: 20px 0;
+    }
+
+    .odometer {
+      background: #2ecc71;
+      padding: 20px 30px;
+      border-radius: 8px;
+      font-size: 2em;
+      color: white;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+      margin: 0 10px;
+    }
+
+    button {
+      background: #2ecc71;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin: 5px;
+    }
+
+    button:hover {
+      background: #27ae60;
+      transform: translateY(-2px);
+    }
+
+    #logoutButton {
+      background: #e74c3c;
+    }
+
+    #logoutButton:hover {
+      background: #c0392b;
+    }
+
+    #rollButton, #roll10Button {
+      background: #3498db;
+      font-size: 1.1em;
+      font-weight: bold;
+    }
+
+    #rollButton:hover, #roll10Button:hover {
+      background: #2980b9;
+    }
+
+    .winning {
+      border: 2px solid #2ecc71 !important;
+      animation: pulse 1s;
+    }
+
+    .losing {
+      border: 2px solid #e74c3c !important;
+      animation: shake 0.3s ease-in-out;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-5px) rotate(-2deg); }
+      40% { transform: translateX(5px) rotate(2deg); }
+      60% { transform: translateX(-5px) rotate(-2deg); }
+      80% { transform: translateX(5px) rotate(2deg); }
+    }
+
+    #balloonGame {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #87CEEB, #4682B4);
+      z-index: 1000;
+    }
+
+    .game-header {
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.2);
+      color: white;
+    }
+
+    #gameArea {
+      position: relative;
+      width: 100%;
+      height: calc(100% - 70px);
+      overflow: hidden;
+    }
+
+    #balloons {
+      position: absolute;
+      right: 0;
+      width: 300px;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .balloon {
+      position: absolute;
+      width: 40px;
+      height: 60px;
+      right: 50px;
+      animation: moveUp 8s linear;
+    }
+
+    #ball {
+      width: 30px;
+      height: 30px;
+      background: #e74c3c;
+      border-radius: 50%;
+      position: absolute;
+      left: 100px;
+      bottom: 150px;
+      cursor: pointer;
+      touch-action: none;
+      z-index: 100;
+    }
+
+    #aimLine {
+      position: absolute;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.8);
+      transform-origin: left center;
+      pointer-events: none;
+      z-index: 99;
+    }
+
+    @keyframes moveUp {
+      0% {
+        bottom: -60px;
+        opacity: 1;
+      }
+      100% {
+        bottom: 100%;
+        opacity: 0;
+      }
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Oyun butonu stili */
+    .game-button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 0 10px;
+    }
+
+    #closeGame {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .balloon {
+      position: absolute;
+      width: 40px;
+      height: 60px;
+      animation: moveUp 8s linear;
+    }
+
+    .bomb {
+      width: 35px;
+      height: 35px;
+    }
+
+    .balloon-value {
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
+
+    .balance-feedback {
+      position: absolute;
+      font-size: 24px;
+      font-weight: bold;
+      animation: fadeUp 1s forwards;
+      pointer-events: none;
+    }
+
+    @keyframes fadeUp {
+      0% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+    }
+  </style>
 </head>
 <body>
 
@@ -23,6 +255,7 @@
       <button id="addBalanceButton"><i class="fa-solid fa-turkish-lira-sign"></i> Ekle</button>
     </p>
     <p id="message" style="display:none;">Bu sayfayı yalnızca giriş yaptıktan sonra görüntüleyebilirsiniz.</p>
+    <button id="balloonGameButton" class="game-button">Balon Oyunu 🎈</button>
   </header>
 
   <!-- Dice Container Bölümü -->
@@ -35,13 +268,14 @@
   <!-- Footer Bölümü -->
   <footer>
     <button id="rollButton" style="display:none;">Çevir 1TL</button>
+    <button id="roll10Button" style="display:none;">10x Çevir 10TL</button>
     <button id="logoutButton" style="display:none;">Çıkış Yap <i class="fa-solid fa-arrow-right-from-bracket"></i></button>
   </footer>
 
   <!-- Bakiye Ekle Popup -->
   <div id="addBalancePopup" style="display: none;">
     <div class="popup-content">
-      <p>Para gönderim için kullanıcı ID’nizi açıklama olarak ekleyin:</p>
+      <p>Para gönderim için kullanıcı ID'nizi açıklama olarak ekleyin:</p>
       <p><strong>IBAN: TR12345678901234567890123456</strong></p>
       <p><strong>Kullanıcı ID'niz: <span id="userIDForIBAN"></span> 
         <button id="copyUserIdForIBAN" style="cursor: pointer;"><i class="fa-solid fa-copy" style="color: #000000;"></i></button></strong></p>
@@ -49,11 +283,25 @@
     </div>
   </div>
 
+  <!-- Balon oyunu container'ı -->
+  <div id="balloonGame" style="display: none;">
+    <div class="game-header">
+      <span id="gameBalance">Bakiye: <span id="gameBalanceAmount">0</span> TL</span>
+      <button id="closeGame">✖</button>
+    </div>
+    <div id="gameArea">
+      <div id="balloons"></div>
+      <div id="player">
+        <div id="ball"></div>
+        <div id="aimLine" class="hidden"></div>
+      </div>
+    </div>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-    import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+    import { getDatabase, ref, get, update, push, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBRTgfhrA3mXOkmqSumBRvG5b4FqMHYm4M",
@@ -78,6 +326,8 @@
         document.getElementById('message').style.display = 'none';
         document.getElementById('logoutButton').style.display = 'block';
         document.getElementById('rollButton').style.display = 'block';
+        document.getElementById('roll10Button').style.display = 'block';
+        document.getElementById('balloonGameButton').style.display = 'block';
 
         const userEmail = user.email;
         document.getElementById('userEmail').innerText = userEmail;
@@ -98,94 +348,243 @@
             const userData = snapshot.val();
             document.getElementById('balance').style.display = 'block';
             document.getElementById('userBalance').innerText = userData.balance;
-          }
-        });
 
-        document.getElementById('userIDForIBAN').innerText = userId;
-        
-        // Copy User ID for IBAN
-        document.getElementById('copyUserIdForIBAN').addEventListener('click', () => {
-          const userIDForIBAN = document.getElementById('userIDForIBAN');
-          navigator.clipboard.writeText(userIDForIBAN.innerText);
+            // Eğer yeni alanlar yoksa oluştur
+            if (!userData.level) {
+              update(userRef, {
+                level: 1,
+                totalBet: 0,
+                winStreak: 0
+              });
+            }
+
+            document.getElementById('userIDForIBAN').innerText = userId;
+            
+            // Copy User ID for IBAN
+            document.getElementById('copyUserIdForIBAN').addEventListener('click', () => {
+              const userIDForIBAN = document.getElementById('userIDForIBAN');
+              navigator.clipboard.writeText(userIDForIBAN.innerText);
+            });
+          }
         });
       }
     });
 
     function rollDice() {
-  const dice1 = Math.floor(Math.random() * 6) + 1;
-  const dice2 = Math.floor(Math.random() * 6) + 1;
-  const dice3 = Math.floor(Math.random() * 6) + 1;
+      const dice1 = Math.floor(Math.random() * 6) + 1;
+      const dice2 = Math.floor(Math.random() * 6) + 1;
+      const dice3 = Math.floor(Math.random() * 6) + 1;
 
-  setTimeout(() => {
-    document.getElementById('dice1').innerText = dice1;
-    setTimeout(() => {
-      document.getElementById('dice2').innerText = dice2;
       setTimeout(() => {
-        document.getElementById('dice3').innerText = dice3;
+        document.getElementById('dice1').innerText = dice1;
         setTimeout(() => {
-          // Dice kutularının border'ını kırmızıya döndürme
-          const diceElements = [document.getElementById('dice1'), document.getElementById('dice2'), document.getElementById('dice3')];
-
-          diceElements.forEach(dice => {
-            dice.style.border = '1px solid red';  // Border'ı kırmızı yap
-          });
-
-          // 2 saniye sonra eski haline dönsün
+          document.getElementById('dice2').innerText = dice2;
           setTimeout(() => {
-            diceElements.forEach(dice => {
-              dice.style.border = '';  // Border'ı eski haline döndür
-            });
-          }, 500); // 500ms sonra eski hale dön
-          
-          // Bakiye bildirimi 2 saniye sonra
-          setTimeout(() => {
-            updateBalance(dice1, dice2, dice3);  // Bakiyeyi güncelle
-          }, 1000); // 2 saniye bekle
-        }, 2000); // 1700ms animasyon süresi
-      }, 1000); // 1000ms arasında animasyon
-    }, 1000); // 1000ms arasında animasyon
-  }, 500); // 500ms arasında animasyon
-}
+            document.getElementById('dice3').innerText = dice3;
+            setTimeout(() => {
+              // Dice kutularının border'ını kırmızıya döndürme
+              const diceElements = [document.getElementById('dice1'), document.getElementById('dice2'), document.getElementById('dice3')];
 
+              diceElements.forEach(dice => {
+                dice.style.border = '1px solid red';  // Border'ı kırmızı yap
+              });
 
-    function updateBalance(dice1, dice2, dice3) {
-      const combinedValue = dice1 * 100 + dice2 * 10 + dice3;
+              // 2 saniye sonra eski haline dönsün
+              setTimeout(() => {
+                diceElements.forEach(dice => {
+                  dice.style.border = '';  // Border'ı eski haline döndür
+                });
+              }, 500); // 500ms sonra eski hale dön
+              
+              // Bakiye bildirimi 2 saniye sonra
+              setTimeout(() => {
+                updateBalance(dice1, dice2, dice3);  // Bakiyeyi güncelle
+              }, 1000); // 2 saniye bekle
+            }, 2000); // 1700ms animasyon süresi
+          }, 1000); // 1000ms arasında animasyon
+        }, 1000); // 1000ms arasında animasyon
+      }, 500); // 500ms arasında animasyon
+    }
 
-      function getReward(combinedValue) {
-        if (combinedValue < 333) {
-          return 0;
-        } else if (combinedValue >= 333 && combinedValue < 444) {
-          return 1;
-        } else if (combinedValue >= 444 && combinedValue < 555) {
-          return 1.25;
-        } else if (combinedValue >= 555 && combinedValue <= 666) {
-          return 2;
-        }
-        return 0;
+    // Kullanıcı havuzu ve kasa yönetimi için global değişkenler
+    let activePool = {
+      totalLoss: 0,    // Aktif kullanıcıların toplam kaybı
+      totalWin: 0,     // Aktif kullanıcıların toplam kazancı
+      kasaDebt: 0      // Kasanın kullanıcılara borcu
+    };
+
+    function getReward(combinedValue, userData, allUsers) {
+      // Diğer aktif kullanıcıları bul
+      const otherUsers = Object.values(allUsers).filter(user => 
+        user.uid !== userData.uid && user.lastActive > Date.now() - 3600000
+      );
+      
+      // Kazanma şansını ve miktarını belirle
+      let winChance = calculateWinChance(userData, otherUsers);
+      let maxWinAmount = calculateMaxWinAmount(userData, otherUsers);
+      
+      // Önce kombinasyon kontrolü yap
+      let potentialReward = 0;
+      if (combinedValue >= 333 && combinedValue < 444) {
+        potentialReward = 1.5;
+      } else if (combinedValue >= 444 && combinedValue < 555) {
+        potentialReward = 2;
+      } else if (combinedValue >= 555 && combinedValue <= 666) {
+        potentialReward = 3;
       }
 
+      // Eğer kazanma potansiyeli olan bir kombinasyon varsa şans faktörünü uygula
+      if (potentialReward > 0) {
+        const randomNum = Math.random() * 100;
+        if (randomNum <= winChance) {
+          return Math.min(potentialReward, maxWinAmount);
+        }
+      }
+      
+      return 0;
+    }
+
+    function calculateWinChance(userData, otherUsers) {
+      let baseChance = 30; // Temel şans %30
+
+      if (otherUsers.length === 0) {
+        // Tek kullanıcı durumu
+        if (userData.balance < 50) {
+          // Minimum çekim limitine ulaşmamış, kazanma şansı yüksek
+          baseChance = 45;
+        } else {
+          // Çekim limitine ulaşmış, kaybetme eğilimi
+          baseChance = 15;
+        }
+      } else {
+        // Çoklu kullanıcı durumu
+        if (activePool.totalWin > activePool.totalLoss) {
+          // Sistem zararda, kazanma şansını düşür
+          baseChance -= 15;
+        } else if (activePool.totalLoss > activePool.totalWin) {
+          // Sistem kârda, kazanma şansını artır
+          baseChance += 10;
+        }
+      }
+
+      return Math.max(10, Math.min(baseChance, 50));
+    }
+
+    function calculateMaxWinAmount(userData, otherUsers) {
+      if (otherUsers.length === 0) {
+        // Tek kullanıcı durumu
+        if (userData.balance < 50) {
+          // Minimum çekim limitine ulaşması için gereken miktar
+          return 50 - userData.balance;
+        }
+        return 1; // Minimum kazanç
+      }
+
+      // Diğer kullanıcıların toplam kaybı
+      const availableLoss = otherUsers.reduce((total, user) => {
+        return total + (user.totalLoss || 0);
+      }, 0);
+
+      return Math.max(1, availableLoss);
+    }
+
+    async function updateUserAndPool(userId, reward, bet) {
+      const db = getDatabase();
+      const userRef = ref(db, `users/${userId}`);
+      const poolRef = ref(db, 'activePool');
+
+      const userData = (await get(userRef)).val();
+      const poolData = (await get(poolRef)).val() || activePool;
+
+      if (reward > 0) {
+        // Kullanıcı kazandı
+        poolData.totalWin += reward;
+        if (poolData.totalLoss < reward) {
+          // Kasa borçlanıyor
+          poolData.kasaDebt += (reward - poolData.totalLoss);
+          poolData.totalLoss = 0;
+        } else {
+          // Diğer kullanıcıların kaybından ödeniyor
+          poolData.totalLoss -= reward;
+        }
+      } else {
+        // Kullanıcı kaybetti
+        poolData.totalLoss += bet;
+      }
+
+      // Kullanıcı verilerini güncelle
+      const updates = {
+        balance: userData.balance - bet + reward,
+        lastActive: Date.now(),
+        totalBet: (userData.totalBet || 0) + bet,
+        [`${reward > 0 ? 'totalWin' : 'totalLoss'}`]: 
+          (userData[reward > 0 ? 'totalWin' : 'totalLoss'] || 0) + (reward > 0 ? reward : bet)
+      };
+
+      await update(userRef, updates);
+      await update(poolRef, poolData);
+    }
+
+    async function updateBalance(dice1, dice2, dice3) {
       const userId = auth.currentUser.uid;
       const userRef = ref(database, 'users/' + userId);
-      get(userRef).then((snapshot) => {
-        if (snapshot.exists()) {
-          let balance = snapshot.val().balance;
+      const allUsersRef = ref(database, 'users');
+      
+      try {
+        const [userSnapshot, allUsersSnapshot] = await Promise.all([
+          get(userRef),
+          get(allUsersRef)
+        ]);
 
-          if (balance >= 1) {
-            balance -= 1;
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.val();
+          const allUsers = allUsersSnapshot.val();
+          
+          if (userData.balance >= 1) {
+            const combinedValue = dice1 * 100 + dice2 * 10 + dice3;
+            const reward = getReward(combinedValue, userData, allUsers);
+            
+            await updateUserAndPool(userId, reward, 1);
+            
+            const newBalance = userData.balance - 1 + reward;
+            document.getElementById('userBalance').innerText = newBalance;
+            
+            // Kazanma/kaybetme durumunu ve kombinasyonu konsola yazdır
+            console.log(`Kombinasyon: ${combinedValue}, Ödül: ${reward}`);
+            
+            if (reward > 0) {
+              alert(`Tebrikler! ${combinedValue} kombinasyonu ile ${reward} TL kazandınız!\nBakiyeniz: ${newBalance} TL`);
+            } else {
+              alert(`${combinedValue} kombinasyonu ile kazanamadınız.\nBakiyeniz: ${newBalance} TL`);
+            }
           } else {
-            alert("Yeterli bakiyeniz yok!");
-            return;
+            alert('Yetersiz bakiye!');
           }
-
-          let reward = getReward(combinedValue);
-          balance += reward;
-
-          update(userRef, { balance: balance });
-
-          document.getElementById('userBalance').innerText = balance;
-          alert(`Kazandığınız ödül: ${reward} TL! Bakiyeniz: ${balance} TL`);
         }
-      });
+      } catch (error) {
+        console.error('Hata:', error);
+        alert('Bir hata oluştu. Lütfen tekrar deneyin.');
+      }
+    }
+
+    function calculateLevel(totalBet) {
+      if (totalBet >= 1000) return 5;
+      if (totalBet >= 500) return 4;
+      if (totalBet >= 250) return 3;
+      if (totalBet >= 100) return 2;
+      return 1;
+    }
+
+    // Para çekme kontrolü için yeni fonksiyon
+    function canWithdraw(userData) {
+      const minWithdrawals = {
+        1: 50,
+        2: 100,
+        3: 250,
+        4: 500,
+        5: 1000
+      };
+      return userData.balance >= minWithdrawals[userData.level];
     }
 
     document.getElementById('logoutButton').addEventListener('click', () => {
@@ -205,6 +604,356 @@
     document.getElementById('closePopup').addEventListener('click', () => {
       document.getElementById('addBalancePopup').style.display = 'none';
     });
+
+    async function roll10Times() {
+      const userId = auth.currentUser.uid;
+      const userRef = ref(database, 'users/' + userId);
+      const allUsersRef = ref(database, 'users');
+      let totalReward = 0;
+
+      try {
+        const [userSnapshot, allUsersSnapshot] = await Promise.all([
+          get(userRef),
+          get(allUsersRef)
+        ]);
+
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.val();
+          const allUsers = allUsersSnapshot.val();
+
+          if (userData.balance < 10) {
+            alert('Yetersiz bakiye!');
+            return;
+          }
+
+          // Butonları devre dışı bırak
+          document.getElementById('rollButton').disabled = true;
+          document.getElementById('roll10Button').disabled = true;
+
+          const dice1Element = document.getElementById('dice1');
+          const dice2Element = document.getElementById('dice2');
+          const dice3Element = document.getElementById('dice3');
+
+          for (let i = 0; i < 10; i++) {
+            const dice1 = Math.floor(Math.random() * 6) + 1;
+            const dice2 = Math.floor(Math.random() * 6) + 1;
+            const dice3 = Math.floor(Math.random() * 6) + 1;
+
+            await new Promise(resolve => {
+              setTimeout(() => {
+                dice1Element.innerText = dice1;
+              }, 100);
+
+              setTimeout(() => {
+                dice2Element.innerText = dice2;
+              }, 300);
+
+              setTimeout(() => {
+                dice3Element.innerText = dice3;
+                
+                const combinedValue = dice1 * 100 + dice2 * 10 + dice3;
+                const reward = getReward(combinedValue, userData, allUsers);
+                totalReward += reward;
+                
+                resolve();
+              }, 500);
+            });
+
+            await new Promise(resolve => setTimeout(resolve, 800));
+          }
+
+          // Toplam sonucu güncelle
+          const finalBalance = userData.balance - 10 + totalReward;
+          await updateUserAndPool(userId, totalReward, 10);
+          
+          document.getElementById('userBalance').innerText = finalBalance;
+          
+          alert(`Toplam Kazanç: ${totalReward} TL\nGüncel Bakiye: ${finalBalance} TL`);
+
+          // Butonları tekrar aktif et
+          document.getElementById('rollButton').disabled = false;
+          document.getElementById('roll10Button').disabled = false;
+        }
+      } catch (error) {
+        console.error('Hata:', error);
+        alert('Bir hata oluştu. Lütfen tekrar deneyin.');
+        
+        // Hata durumunda butonları aktif et
+        document.getElementById('rollButton').disabled = false;
+        document.getElementById('roll10Button').disabled = false;
+      }
+    }
+
+    // Event listener ekle
+    document.getElementById('roll10Button').addEventListener('click', roll10Times);
+
+    let gameActive = false;
+    let isDragging = false;
+    let startPos = { x: 0, y: 0 };
+    let ballInAir = false;
+
+    function throwBall(power, angle) {
+      ballInAir = true;
+      const ball = document.getElementById('ball');
+      
+      // Başlangıç pozisyonunu al
+      let posX = parseInt(ball.style.left) || 100;
+      let posY = parseInt(ball.style.top) || (window.innerHeight - 150);
+      
+      // Hızı artırdık ve yönü düzelttik
+      const velocity = {
+        x: Math.cos(angle) * power * -80,
+        y: Math.sin(angle) * power * -80
+      };
+      
+      let gravity = 1.5;
+      
+      function animate() {
+        if (!ballInAir) return;
+        
+        // Pozisyonu güncelle
+        velocity.y += gravity;
+        posX += velocity.x * 0.16;
+        posY += velocity.y * 0.16;
+        
+        // Topu hareket ettir
+        ball.style.left = `${posX}px`;
+        ball.style.top = `${posY}px`;
+        
+        // Çarpışma kontrolü
+        checkCollisions(ball);
+        
+        // Ekran sınırları kontrolü
+        if (posY < window.innerHeight + 200 && 
+            posX < window.innerWidth + 200 && 
+            posX > -200) {
+          requestAnimationFrame(animate);
+        } else {
+          resetBall();
+        }
+      }
+      
+      animate();
+    }
+
+    function resetBall() {
+      ballInAir = false;
+      const ball = document.getElementById('ball');
+      ball.style.left = '100px';
+      ball.style.top = `${window.innerHeight - 150}px`;
+    }
+
+    // Sürükleme olaylarını da düzeltelim
+    function startDrag(e) {
+      if (ballInAir) return;
+      
+      isDragging = true;
+      const pos = e.type.includes('mouse') ? e : e.touches[0];
+      startPos = {
+        x: pos.clientX,
+        y: pos.clientY
+      };
+      
+      document.getElementById('aimLine').classList.remove('hidden');
+    }
+
+    function drag(e) {
+      if (!isDragging || ballInAir) return;
+      
+      e.preventDefault(); // Varsayılan davranışı engelle
+      
+      const pos = e.type.includes('mouse') ? e : e.touches[0];
+      const dx = startPos.x - pos.clientX;
+      const dy = startPos.y - pos.clientY;
+      
+      const power = Math.min(Math.hypot(dx, dy) / 50, 2.5); // Maksimum gücü artırdık
+      const angle = Math.atan2(dy, dx);
+      
+      const aimLine = document.getElementById('aimLine');
+      aimLine.style.width = `${power * 100}px`;
+      aimLine.style.transform = `rotate(${angle}rad)`;
+    }
+
+    function endDrag(e) {
+      if (!isDragging || ballInAir) return;
+      
+      const pos = e.type.includes('mouse') ? e : e.changedTouches[0];
+      const dx = startPos.x - pos.clientX;
+      const dy = startPos.y - pos.clientY;
+      
+      const power = Math.min(Math.hypot(dx, dy) / 50, 2.5);
+      const angle = Math.atan2(dy, dx);
+      
+      isDragging = false;
+      document.getElementById('aimLine').classList.add('hidden');
+      
+      if (power > 0.1) {
+        throwBall(power, angle);
+      }
+    }
+
+    // Event listener'ları doğru yere ekleyelim
+    function initGame() {
+      const ball = document.getElementById('ball');
+      
+      // Mouse events
+      ball.addEventListener('mousedown', startDrag);
+      document.addEventListener('mousemove', drag);
+      document.addEventListener('mouseup', endDrag);
+      
+      // Touch events
+      ball.addEventListener('touchstart', startDrag, { passive: false });
+      document.addEventListener('touchmove', drag, { passive: false });
+      document.addEventListener('touchend', endDrag);
+      
+      // Oyunu başlat
+      resetBall();
+      spawnBalloons();
+    }
+
+    // Oyun bakiyesi için ayrı bir değişken
+    let gameBalance = 0;
+
+    // Oyun başlatma fonksiyonu
+    function startBalloonGame() {
+      const balloonGame = document.getElementById('balloonGame');
+      balloonGame.style.display = 'block';
+      gameActive = true;
+      gameBalance = 0; // Oyun bakiyesi sıfırlanır
+      
+      // Oyun bakiyesini göster
+      document.getElementById('gameBalanceAmount').textContent = '0';
+      
+      initGame();
+    }
+
+    // Oyunu kapatma fonksiyonu
+    function closeGame() {
+      gameActive = false;
+      document.getElementById('balloonGame').style.display = 'none';
+      
+      // Oyun bakiyesini ana bakiyeye ekle
+      if (gameBalance > 0) {
+        const currentBalance = parseInt(document.getElementById('userBalance').textContent);
+        const newBalance = currentBalance + gameBalance;
+        
+        // Ana bakiyeyi güncelle
+        document.getElementById('userBalance').textContent = newBalance;
+        
+        // Firebase'i güncelle
+        const userId = auth.currentUser.uid;
+        const userRef = ref(database, 'users/' + userId);
+        update(userRef, { balance: newBalance });
+      }
+      
+      gameBalance = 0; // Oyun bakiyesini sıfırla
+    }
+
+    // Balon oluşturma fonksiyonu
+    function createBalloon() {
+      const balloon = document.createElement('div');
+      balloon.className = 'balloon';
+      
+      // Rastgele x pozisyonu (sağ tarafta)
+      const xPos = Math.random() * 250;
+      balloon.style.right = `${xPos}px`;
+      
+      // Bomba olasılığını artır (%35)
+      const isBomb = Math.random() < 0.35;
+      
+      if (isBomb) {
+        balloon.classList.add('bomb');
+        balloon.innerHTML = `
+          <img src="bomb.png" alt="bomb">
+          <span class="balloon-value">-2</span>
+        `;
+        balloon.dataset.value = "-2";
+      } else {
+        balloon.innerHTML = `
+          <img src="balloon1.png" alt="balloon">
+          <span class="balloon-value">+1</span>
+        `;
+        balloon.dataset.value = "1";
+      }
+      
+      balloon.addEventListener('animationend', () => balloon.remove());
+      return balloon;
+    }
+
+    // Balon spawn sistemi
+    function spawnBalloons() {
+      if (!gameActive) return;
+      
+      const balloons = document.getElementById('balloons');
+      
+      // Her 2 saniyede bir yeni balon (daha seyrek)
+      const spawnInterval = setInterval(() => {
+        if (!gameActive) {
+          clearInterval(spawnInterval);
+          return;
+        }
+        
+        if (balloons.children.length < 3) { // Maksimum 3 balon
+          const balloon = createBalloon();
+          balloons.appendChild(balloon);
+        }
+      }, 2000); // 2 saniye aralık
+    }
+
+    function checkCollisions(ball) {
+      const ballRect = ball.getBoundingClientRect();
+      const balloons = document.getElementsByClassName('balloon');
+      
+      Array.from(balloons).forEach(balloon => {
+        const balloonRect = balloon.getBoundingClientRect();
+        if (isColliding(ballRect, balloonRect)) {
+          popBalloon(balloon);
+        }
+      });
+    }
+
+    function isColliding(rect1, rect2) {
+      return !(rect1.right < rect2.left || 
+               rect1.left > rect2.right || 
+               rect1.bottom < rect2.top || 
+               rect1.top > rect2.bottom);
+    }
+
+    function popBalloon(balloon) {
+      const value = parseInt(balloon.dataset.value);
+      updateGameBalance(value);
+      
+      // Patlama efekti
+      balloon.style.animation = 'pop 0.3s forwards';
+      setTimeout(() => balloon.remove(), 300);
+    }
+
+    // Bakiye güncelleme fonksiyonu
+    function updateGameBalance(value) {
+      gameBalance += value; // Oyun bakiyesini güncelle
+      
+      // Oyun içi bakiyeyi göster
+      const balanceElement = document.getElementById('gameBalanceAmount');
+      balanceElement.textContent = gameBalance;
+      
+      // Görsel feedback
+      showBalanceChange(value);
+    }
+
+    // Bakiye değişim efekti
+    function showBalanceChange(value) {
+      const feedback = document.createElement('div');
+      feedback.className = 'balance-feedback';
+      feedback.textContent = value > 0 ? `+${value}` : value;
+      feedback.style.color = value > 0 ? '#2ecc71' : '#e74c3c';
+      
+      document.getElementById('gameArea').appendChild(feedback);
+      setTimeout(() => feedback.remove(), 1000);
+    }
+
+    // Event listener'ları güncelle
+    document.getElementById('balloonGameButton').addEventListener('click', startBalloonGame);
+    document.getElementById('closeGame').addEventListener('click', closeGame);
   </script>
 
   <!-- Popup CSS -->
@@ -238,3 +987,4 @@
   </style>
 </body>
 </html>
+
